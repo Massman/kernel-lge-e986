@@ -255,7 +255,7 @@ static int lowmem_shrink(struct shrinker *s, struct shrink_control *sc)
 	if (selected) {
 		lowmem_print(1, "send sigkill to %d (%s), adj %d, size %d\n",
 			     selected->pid, selected->comm,
-				 selected_oom_score_adj, selected_tasksize);
+			     selected_oom_score_adj, selected_tasksize);
 #ifdef CONFIG_MACH_LGE
 		lowmem_deathpending = selected;
 #endif
