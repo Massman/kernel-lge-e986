@@ -404,4 +404,5 @@ obj-$(CONFIG_CPU_FREQ_MSM) += cpufreq.o
 
 obj-$(CONFIG_ARCH_RANDOM) += early_random.o
 
+obj-$(CONFIG_FORCE_FAST_CHARGE) += fastchg.o
 obj-$(CONFIG_MSM_CPUFREQ_LIMITER) += cpufreq_limit.o
