@@ -150,3 +150,5 @@ obj-$(CONFIG_LGE_BROADCAST_ONESEG) += broadcast/
 obj-$(CONFIG_MSM_QDSS)		+= coresight/
 #FeliCa
 obj-$(CONFIG_LGE_FELICA) 	+= felica/
+
+obj-y   += exfat/
