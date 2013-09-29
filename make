@@ -10,8 +10,7 @@ then
     if [ ! -f out/kernel/noclean ]
     then
 	echo "--- Cleaning up ---"
-	rm -rf out/kernel
-	rm -rf out/system
+	rm -rf out
 	make mrproper
     fi
 
@@ -49,62 +48,25 @@ then
   fi
 fi
 
-if [ -f out/boot.img ]
+if [ -d ramdisk ]
 then
-  if [ ! -d out/boot/boot.img-ramdisk ] && [ ! -f out/ramdisk.gz ]
-  then
-	mkdir -p out/boot
-	cp out/boot.img out/boot
-	cp scripts/mkbootfs out/boot
-	cp scripts/extract-ramdisk.pl out/boot
-	cd out/boot
-	echo "--- Extracting ramdisk ---"
-	./extract-ramdisk.pl boot.img
-	./mkbootfs boot.img-ramdisk | gzip > ramdisk.gz
-	rm -f boot.img
-	rm -f mkbootfs
-	rm -f extract-ramdisk.pl
-	cd ../..
-	mv out/boot/ramdisk.gz out
-	exit 0
-  fi
-
-  if [ -d out/boot/boot.img-ramdisk ] || [ -f out/ramdisk.gz ]
-  then
 	mkdir -p out/boot
 	mv out/zImage out/boot
-	mv out/boot.img out/boot
-	cp scripts/mkbootfs out/boot
 	cp scripts/mkbootimg out/boot
+	./scripts/mkbootfs ramdisk | gzip > ramdisk.gz
+	mv ramdisk.gz out/boot
+	cd out/boot
 
-	  if [ -d out/boot/boot.img-ramdisk ]
-	  then
-		rm -f out/ramdisk.gz
-		cd out/boot
-		./mkbootfs boot.img-ramdisk | gzip > ramdisk.gz
-	  fi
-
-	  if [ -f out/ramdisk.gz ]
-	  then
-		mv out/ramdisk.gz out/boot
-		cd out/boot
-	  fi
-
-	cmd_line=`od -A n --strings -j 64 -N 512 boot.img`
-	temp=`od -A n -H -j 20 -N 4 boot.img | sed 's/ //g'`
-	ramdisk=0x$temp
-	base_temp=`od -A n -h -j 14 -N 2 boot.img | sed 's/ //g'`
-	zeros=0000
-	base=0x$base_temp$zeros
+	cmd_line='vmalloc=600M console=ttyHSL0,115200,n8 lpj=67677 user_debug=31 msm_rtb.filter=0x0 ehci-hcd.park=3 coresight-etm.boot_enable=0 androidboot.hardware=geefhd'
+	base=0x80200000
+	ramdisk=0x82200000
+	
 	echo "--- Creating boot.img ---"
 	./mkbootimg --kernel zImage --ramdisk ramdisk.gz --cmdline "$cmd_line" -o newboot.img --base $base --ramdiskaddr $ramdisk
 	cd ../..
-	mv out/boot/ramdisk.gz out
 	mv out/boot/newboot.img out/boot.img
 	rm -rf out/boot
-  fi
-
 else
-	echo "--- No boot.img found ---"
+	echo "--- No ramdisk found ---"
 	exit 0
 fi
